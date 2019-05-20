@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-const {secret} = require('../api/secret');
+const secrets = require('../api/secret');
 
 module.exports = {
     generateToken
@@ -9,12 +9,12 @@ module.exports = {
 function generateToken(parent) {
     const payload = {
         subject: parent.id,
-        username: username,
+        username: parent.username,
         roles: ['Parent']
     };
     
     const options = {
         expiresIn: "1d"
     };
-    return jwt.sign(payload, secret, options)
+    return jwt.sign(payload, secrets.jwtSecret, options)
 }
