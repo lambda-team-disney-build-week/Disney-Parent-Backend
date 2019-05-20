@@ -2,41 +2,49 @@ exports.up = function(knex, Promise) {
   return (
     knex.schema
       // PARENT TABLE
-      .createTable("parents", field => {
-        field.increments();
-        field.text("username", 50).notNullable();
-        field.text("password", 50).notNullable();
-        field.text("email", 50).notNullable();
-        field.string("accountType", 128).notNullable();
+      .createTable("parents", parents => {
+        parents.increments();
+        parents.string("username", 128).notNullable();
+        parents.string("password", 128).notNullable();
+        parents.string("email", 128).notNullable();
+        parents.string("accountType", 128).notNullable();
       })
 
+      // VOLUNTEER TABLE
+
+
       // POSTS TABLE
-      .createTable("posts", field => {
-        field.increments();
-        field.text("content", 500);
-        field.integer("children");
-        field.text("time_of_day_to_meet", 32);
-        field
+      .createTable("posts", posts => {
+        posts.increments();
+        posts.string("title", 128).notNullable();
+        posts.string("attraction",128).notNullable();
+        posts.integer("children").notNullable();
+        posts.string("time", 128).notNullable();
+        posts
           .integer("parent_id")
-          .unsigned()
-          .references("id")
-          .inTable("parents")
-          .onDelete("CASCADE")
-          .onUpdate("CASCADE");
-        field
-          .integer("post_id")
           .unsigned()
           .notNullable()
           .references("id")
           .inTable("parents")
           .onDelete("CASCADE")
           .onUpdate("CASCADE");
-        field.timestamps(true, true);
+          posts.timestamps(true, true);
+        // posts
+        //   .integer("post_id")
+        //   .unsigned()
+        //   .notNullable()
+        //   .references("id")
+        //   .inTable("parents")
+        //   .onDelete("CASCADE")
+        //   .onUpdate("CASCADE");
+        // posts.timestamps(true, true);
       })
       // COMMENTS TABLE
-      .createTable("comments", field => {
-        field.increments();
-        field
+      .createTable("comments", comments => {
+        comments.increments();
+        comments.string("username").notNullable();
+        comments.text("comment").notNullable();
+        comments
           .integer("post_id")
           .unsigned()
           .notNullable()
@@ -44,16 +52,14 @@ exports.up = function(knex, Promise) {
           .inTable("posts")
           .onDelete("CASCADE")
           .onUpdate("CASCADE");
-        field.string("username").notNullable();
-        field.text("comment").notNullable();
-        field.timestamps(true, true);
+        comments.timestamps(true, true);
       })
   );
 };
 
 exports.down = function(knex, Promise) {
   return knex.schema
-    .dropTableIfExists("users")
+    .dropTableIfExists("parents")
     .dropTableIfExists("posts")
     .dropTableIfExists("comments");
 };
