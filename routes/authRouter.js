@@ -1,46 +1,79 @@
 const router = require("express").Router();
-const bcrypt = require("bcryptjs");
-const tokenService = require('../auth/token');
+const tokens = require("../auth/token");
 const db = require("../data/dbConfig");
-const parents = require('../models/parent-model')
+const secret = require('../api/secret');
+const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken')
+const Users = require("../models/parent-model");
 
-router.post('/register', (req, res) => {
-    let user = req.body;
-    const hash = bcrypt.hashSync(user.password, 10);
+router.post("/parents/register", (req, res) => {
+  const user = req.body;
+
+  if (!user.username || !user.password || !user.email || !user.accountType) {
+    res.status(400).json({
+      error: "Please fill out all of the fields"
+    });
+  } else {
+    const hash = bcrypt.hashSync(user.password, 14);
     user.password = hash;
-  
-    db('parents')
-      .insert(user).returning()
-      .then(saved => {
-        res.status(201).json(saved);
+    console.log("hi");
+    db("parents")
+      .insert(user)
+      .then(ids => {
+        console.log("******", ids);
+        const id = ids[0];
+
+        db("parents")
+          .where({ id })
+          .first()
+          .then(user => {
+            const token = tokens.generateToken(user);
+            res
+              .status(201)
+              .json({ id: user.id, username: user.username, token });
+          })
+          .catch(error => {
+            res.status(500).json({
+              error: "There was an error while saving the user to the database."
+            });
+          });
       })
       .catch(error => {
-          console.log(error)
-        res.status(500).json({ message: 'Error registering account' });
+        res.status(400).json({
+          error: "This username already exists!"
+        });
       });
-  });
-  
-  router.post('/login', (req, res) => {
-    let { username, password } = req.body;
-  
-    Users.findBy({ username })
+  }
+});
+
+router.post("/parents/login", (req, res) => {
+  let { username, password, email, accountType } = req.body;
+  if (!username || !password || !email || !accountType) {
+    res.status(400).json({
+      error: "Please provide a username and password."
+    });
+  } else {
+    db("parents")
+      .where({ username })
       .first()
       .then(user => {
         if (user && bcrypt.compareSync(password, user.password)) {
-          const token = tokenService.generateToken(user);
-          res.status(200).json({
-            message: `Welcome ${user.username}!, have a token...`,
-            token,
-            roles: token.roles,
-          });
+          const token = tokens.generateToken(user);
+          res
+            .status(200)
+            .json({ message: `${user.username} is logged in.`, token });
         } else {
-          res.status(401).json({ message: 'Invalid Credentials' });
+          res.status(401).json({
+            error: "Please provide the correct username and password."
+          });
         }
       })
       .catch(error => {
-        res.status(500).json({ message: "Session Timed Out"});
+        res.status(500).json({
+          error: "There was an error while logging in."
+        });
       });
-  });
-
+  }
+});
 
 module.exports = router;

@@ -18,7 +18,7 @@ server.use("/posts", postRouter);
 server.use("/comments", commentRouter)
 
 server.get('/', (req,res) => {
-    res.send('ITS LIT!, go to the documentation for the endpoints')
+    res.send('go to https://documenter.getpostman.com/view/7322724/S1TN7gy5?version=latest for endpoint documentation')
 })
 
 module.exports = server;
