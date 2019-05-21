@@ -17,8 +17,8 @@ function getBy(filter) {
 function getById(id) {
     return db('parents').where({ id }).first();
 }
-function add(user) {
-    const [id] = db('parents').insert(user);
+async function add(user) {
+    const [id] = await db('parents').insert(user);
 
     return getById(id);
 }
