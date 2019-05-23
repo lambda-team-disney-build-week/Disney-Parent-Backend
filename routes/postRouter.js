@@ -33,12 +33,39 @@ router.get('/:id', async(req, res) => {
         res.status(500).json({error: 'Error cant get post' });
     }
 })
+
+//ADDS POST
+router.post('/', async(req, res) => {
+    const {
+        parent_id,
+        title,
+        attraction,
+        children,
+        time
+    } = req.body
+    if (!parent_id || !title || !attraction || !children || !time) {
+        res
+            .status(400)
+            .json({ message: "Please provide missing information" });
+    }
+    try {
+        const posts = await Post.add(req.body);
+        res
+            .json(posts);
+    } catch (err) {
+        res
+            .status(500)
+            .json({ err: "The post could not be added at this time." });
+    }
+});
+
+
 //UPDATE SPECEIFIED POST
 router.put('/:id', async(req,res) => {
     try {
         const updatedPost = await Post.update(req.params.id, req.body);
         if(updatedPost)
-            res.status(200).json({message: `parent: ${updatedPost}`, postInfo:req.body})
+            res.status(200).json({message: `parent: ${updatedPost}`, updatedPostInfo:req.body})
     } catch (error) {
         res.status(500).json({ message: "There was Error updating the post"})
     }

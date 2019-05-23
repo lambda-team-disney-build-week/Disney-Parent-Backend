@@ -16,18 +16,18 @@ exports.up = function(knex, Promise) {
       // POSTS TABLE
       .createTable("posts", posts => {
         posts.increments();
+        posts
+        .integer("parent_id")
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("parents")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
         posts.string("title", 128).notNullable();
         posts.string("attraction",128).notNullable();
         posts.integer("children").notNullable();
         posts.string("time", 128).notNullable();
-        posts
-          .integer("parent_id")
-          .unsigned()
-          .notNullable()
-          .references("id")
-          .inTable("parents")
-          .onDelete("CASCADE")
-          .onUpdate("CASCADE");
           posts.timestamps(true, true);
         // posts
         //   .integer("post_id")
