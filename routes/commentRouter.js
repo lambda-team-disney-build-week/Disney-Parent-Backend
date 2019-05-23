@@ -12,16 +12,19 @@ router.get('/', async(req, res) => {
     }
 })
 //GET SPECEFIC ID OF COMMENT
-router.get('/:id', (req, res) => {
-    let id = req.params.id;
-    db('comments')
-        .where({id})
-        .first()
-        .then(users => {
-        res.json(users);
-        })
-        .catch(err => res.send(err));
-});
+router.get('/:id', async(req, res) => {
+    const comments = await Comment.getById(req.params.id);
+    try{
+
+        if (comments) {
+            res.status(200).json(comments);
+        } else {
+            res.status(404).json({ message: "Comment by that user not found"})
+        }
+    }catch (error){
+        res.status(500).json({error: 'Error cant get Comment' });
+    }
+})
 //UPDATE THE ID
 router.put('/:id', async(req,res) => {
     try {

@@ -8,7 +8,8 @@ module.exports = {
     add,
     update,
     removePost,
-    removeParentPost
+    removeParentPost,
+    insert
 };
 
 function getPost() {
@@ -43,3 +44,11 @@ function removePost(id) {
 function removeParentPost(parent_id){
     return db('posts').where('parent_id',parent_id).del()
 }
+
+function insert(post) {
+    return db("posts")
+      .insert(post)
+      .then(ids => {
+        return getById(ids[0]);
+      });
+  }
